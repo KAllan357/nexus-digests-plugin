@@ -1,0 +1,1 @@
+When a SHA1 isn't enough.

@@ -1,0 +1,11 @@
+# IntelliJ Files
+*.iml
+*.ipr
+*.iws
+atlassian-ide-plugin.xml
+
+# Maven Files
+target/
+
+# OS X
+.DS_Store

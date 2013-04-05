@@ -17,10 +17,33 @@ Vagrant.configure("2") do |config|
   config.ssh.max_tries = 40
   config.ssh.timeout   = 120
 
-      script = <<SCRIPT
-rm -rf /usr/local/nexus/current/nexus-2.3.0-04/nexus/WEB-INF/plugin-repository/nexus-digests-plugin-1.0.0-SNAPSHOT/
-mv /shared_folder/nexus-digests-plugin-1.0.0-SNAPSHOT /usr/local/nexus/current/nexus-2.3.0-04/nexus/WEB-INF/plugin-repository/
-chown -R nexus:nexus /usr/local/nexus/current/nexus-2.3.0-04/nexus/WEB-INF/plugin-repository/nexus-digests-plugin-1.0.0-SNAPSHOT/
+  config.vm.provision :chef_solo do |chef|
+    chef.json = {
+      :mysql => {
+        :server_root_password => 'rootpass',
+        :server_debian_password => 'debpass',
+        :server_repl_password => 'replpass'
+      },
+      :nexus => {
+        :jetty => {
+          :loopback => false
+        },
+        :ssl => {
+          :verify => false
+        }
+      }
+    }
+
+    chef.run_list = [
+      "recipe[nexus::default]"
+    ]
+  end
+
+  script = <<SCRIPT
+rm -rf /usr/local/nexus/current/nexus-2.3.1-01/nexus/WEB-INF/plugin-repository/nexus-digests-plugin-1.0.0-SNAPSHOT/
+mv /shared_folder/nexus-digests-plugin-1.0.0-SNAPSHOT /usr/local/nexus/current/nexus-2.3.1-01/nexus/WEB-INF/plugin-repository/
+chown -R nexus:nexus /usr/local/nexus/current/nexus-2.3.1-01/nexus/WEB-INF/plugin-repository/nexus-digests-plugin-1.0.0-SNAPSHOT/
+sudo /etc/init.d/nexus restart
 SCRIPT
 
   config.vm.provision :shell,

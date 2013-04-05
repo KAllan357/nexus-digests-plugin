@@ -2,9 +2,10 @@ package com.kda.rest;
 
 import com.kda.digests.SHA256CalculatingInspector;
 import org.codehaus.plexus.component.annotations.Component;
-//import org.codehaus.enunciate.contract.jaxrs.ResourceMethodSignature;
+import org.json.simple.JSONValue;
 import org.restlet.Context;
 import org.restlet.data.Form;
+import org.restlet.data.MediaType;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.resource.ResourceException;
@@ -18,25 +19,23 @@ import org.sonatype.nexus.proxy.maven.ArtifactStoreHelper;
 import org.sonatype.nexus.proxy.maven.ArtifactStoreRequest;
 import org.sonatype.nexus.proxy.maven.MavenRepository;
 import org.sonatype.nexus.proxy.maven.gav.Gav;
-import org.sonatype.nexus.rest.AbstractNexusPlexusResource;
 import org.sonatype.nexus.rest.artifact.AbstractArtifactPlexusResource;
-import org.sonatype.plexus.rest.resource.AbstractPlexusResource;
+import org.sonatype.nexus.rest.model.ArtifactResolveResourceResponse;
 import org.sonatype.plexus.rest.resource.PathProtectionDescriptor;
 import org.sonatype.plexus.rest.resource.PlexusResource;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import java.util.LinkedHashMap;
 
 @Path(DigestRestResource.RESOURCE_URI)
 @Produces({"text/plain"})
 @Component(role = PlexusResource.class, hint = "DigestRestResource")
 @RestResource
-public class DigestRestResource extends AbstractArtifactPlexusResource {//AbstractNexusPlexusResource {
+public class DigestRestResource extends AbstractArtifactPlexusResource {
 
-    public static final String RESOURCE_URI = "/kyle/digest";
+    public static final String RESOURCE_URI = "/artifact/digests";
 
     @Override
     public Object getPayloadInstance() {
@@ -79,10 +78,15 @@ public class DigestRestResource extends AbstractArtifactPlexusResource {//Abstra
             String sha1 = resolvedFile.getRepositoryItemAttributes().get(DigestCalculatingInspector.DIGEST_SHA1_KEY);
             String sha256 = resolvedFile.getRepositoryItemAttributes().get(SHA256CalculatingInspector.DIGEST_SHA256_KEY);
 
-             StringBuilder foo = new StringBuilder();
+            StringBuilder foo = new StringBuilder();
             foo.append("SHA1: ").append(sha1).append("\n");
             foo.append("SHA256: ").append(sha256).append("\n");
-            return foo;
+
+            LinkedHashMap<Object, String> list = new LinkedHashMap<Object, String>();
+            list.put("SHA1", sha1);
+            list.put("SHA256", sha256);
+
+            return new StringRepresentation(JSONValue.toJSONString(list), MediaType.APPLICATION_JSON);
         } catch (Exception e) {
             handleException(request, response, e);
             return null;

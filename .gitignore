@@ -3,9 +3,16 @@
 *.ipr
 *.iws
 atlassian-ide-plugin.xml
+.idea/
 
 # Maven Files
 target/
 
 # OS X
 .DS_Store
+
+# Vagrant
+.vagrant/
+
+# Berkshelf
+Berksfile.lock
